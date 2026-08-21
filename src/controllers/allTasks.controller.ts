@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import taskModel from "../models/allTasks.model.js";
 import AppError from "../utils/AppError.js";
+import userModel from "../models/user.model.js";
 
 export const createTasks= async (
   req: Request,
@@ -9,6 +10,10 @@ export const createTasks= async (
 ) => {
   try {
     const { nameOfTask, detailsOfTask, statusOfTask, date, time } = req.body;
+    const getUserId = await userModel.findById(req.params.userId);
+    if(!getUserId){
+      throw new AppError("user not found", 400)
+    }
     const task = await taskModel.create({
       nameOfTask,
       detailsOfTask,
@@ -16,6 +21,9 @@ export const createTasks= async (
       date,
       time,
     });
+
+    await getUserId.tasks.push(task._id);
+    await getUserId.save();
 
     return res.status(201).json({
       message: "Task created successfully",
