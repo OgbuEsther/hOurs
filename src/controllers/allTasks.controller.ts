@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import taskModel from "../models/allTasks.model.js";
 import AppError from "../utils/AppError.js";
 
-export const createTaks = async (
+export const createTasks= async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -25,3 +25,24 @@ export const createTaks = async (
     next(error);
   }
 };
+
+
+export const getAllTask = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const  allTask = await taskModel.find()
+    if (!allTask){
+      throw new AppError("task not gotten", 400)
+    }
+    return res.status(201).json({
+      message: "all task retrieved",
+      data: allTask
+    })
+
+  }catch(error){
+    next(error)
+  }
+}
